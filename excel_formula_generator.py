@@ -72,10 +72,11 @@ class FormulaGenerator:
 		return text.strip(" & ")
 
 class Columns:
-	def __init__(self, start, end, exclude=[]):
+	def __init__(self, start, end, exclude=[], include=[]):
 		self.start = Column(text=start)
 		self.end = Column(text=end)
 		self.exclude = exclude
+		self.include = include
 
 	def get(self):
 		l = []
@@ -84,6 +85,7 @@ class Columns:
 			if c.text not in self.exclude:
 				l.append(c)
 			c = c.next()
+		l += [Column(text=x) for x in self.include]
 		return l
 
 if __name__ == '__main__':

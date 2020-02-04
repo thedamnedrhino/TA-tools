@@ -11,9 +11,10 @@ if __name__ == '__main__':
 	parser.add_argument('startcolumn')
 	parser.add_argument('endcolumn')
 	parser.add_argument('--exclude', nargs='+', required=False, default=[])
+	parser.add_argument('--include', nargs='+', required=False, default=[])
 	args = parser.parse_args()
 
-	columns = Columns(args.startcolumn, args.endcolumn, exclude=args.exclude).get()
+	columns = Columns(args.startcolumn, args.endcolumn, exclude=args.exclude, include=args.include).get()
 	fg = FormulaGenerator()
 	if args.command == 'total':
 		print(fg.generate_total(columns))
