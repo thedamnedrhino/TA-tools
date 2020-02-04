@@ -55,31 +55,40 @@ class FormulaGenerator:
 		self.titlerow = titlerow
 		self.markrow = markrow
 
-	def generate_total(self, startcolumn, endcolumn):
-		c = startcolumn
+	def generate_total(self, columns):
 		text = ""
-		while c.leq(endcolumn):
+		for c in columns:
 			text += "{}*{} +".format(c.absolute_reference(self.valuerow), c.relative_reference(self.markrow))
-			c = c.next()
 
 		return text.strip("+").strip()
 
-	def generate_summary(self, startcolumn, endcolumn, questionnumber=True):
-		c = startcolumn
+	def generate_summary(self, columns, questionnumber=True):
+		c = columns[0]
 		text = "{} & CHAR(10) & ".format(c.absolute_reference(self.titlerow)) if questionnumber else ""
-		if questionnumber:
-			c = c.next()
-		while c.leq(endcolumn):
+		columns = columns[1:] if questionnumber else columns
+		for c in columns:
 			text += "{} & \": \" & {}*{} & \"/\" & {} & CHAR(10) & ".format(c.absolute_reference(self.titlerow), c.absolute_reference(self.valuerow), c.relative_reference(self.markrow), c.absolute_reference(self.valuerow))
-			c = c.next()
 
 		return text.strip(" & ")
 
+class Columns:
+	def __init__(self, start, end, exclude=[]):
+		self.start = Column(text=start)
+		self.end = Column(text=end)
+		self.exclude = exclude
+
+	def get(self):
+		l = []
+		c = self.start
+		while c.leq(self.end):
+			if c.text not in self.exclude:
+				l.append(c)
+			c = c.next()
+		return l
 
 if __name__ == '__main__':
 	assert intchar(charint('A')) == 'A'
 	fg = FormulaGenerator()
-	s = Column(text='D')
-	e = Column(text = 'F')
-	assert fg.generate_total(s, e) == "$D$1*D3 +$E$1*E3 +$F$1*F3", fg.generate_total(s, e)
-	assert fg.generate_summary(s, e) =='$D$2 & CHAR(10) & $E$2 & ": " & $E$1*E3 & "/" & $E$1 & CHAR(10) & $F$2 & ": " & $F$1*F3 & "/" & $F$1 & CHAR(10)', fg.generate_summary(s, e)
+	columns = Columns('D', 'H', ['G', 'H']).get()
+	assert fg.generate_total(columns) == "$D$1*D3 +$E$1*E3 +$F$1*F3", fg.generate_total(columns)
+	assert fg.generate_summary(columns) =='$D$2 & CHAR(10) & $E$2 & ": " & $E$1*E3 & "/" & $E$1 & CHAR(10) & $F$2 & ": " & $F$1*F3 & "/" & $F$1 & CHAR(10)', fg.generate_summary(columns)
