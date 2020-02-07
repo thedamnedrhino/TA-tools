@@ -1,26 +1,42 @@
 
 def charint(char):
-	return ord(char) - ord('A')
+	return ord(char) - ord('A') + 1
 def intchar(integer):
-	return chr(integer + ord('A'))
+	return chr(integer + ord('A') - 1)
 
 class Column:
-	def __init__(self, text=None, num=None):
+	def __init__(self, text=None, _num=None):
 		self.text = text
-		self.num = num
+		self.num = None if _num is None else self._fix_num(_num)
 		self.initialize()
 
+	def _fix_num(self, num):
+		# turn 0s into 1s
+		order = 1
+		fixed = 0
+		while num > 0:
+			modul = num % self._alphabet_range()
+			modul = 1 if modul == 0 else modul
+			fixed += modul*order
+			order *= self._alphabet_range()
+			num /= self._alphabet_range()
+
+		return fixed
+
+
 	def _alphabet_range(self):
-		return charint('Z') - charint('A') + 1
+		return charint('Z') - charint('A') + 2
 
 	def initialize(self):
 		assert self.text is None or self.num is None
 		if self.num is None:
 			num = 0
+			order = 1
 			for i in range(len(self.text)):
 				num *= self._alphabet_range()
 				c = self.text[i]
 				num += charint(c)
+			assert num == self._fix_num(num), "{}, {}".format(num, self._fix_num(num))
 			self.num = num
 		else:
 			text = ""
@@ -44,7 +60,7 @@ class Column:
 		return "{}{}".format(self.text, rownum)
 
 	def next(self):
-		return Column(num=self.num+1)
+		return Column(_num=self.num+1)
 
 	def leq(self, other):
 		return self.num <= other.num
@@ -91,6 +107,10 @@ class Columns:
 			c = c.next()
 		l += [Column(text=x) for x in self.include]
 		return l
+
+	@staticmethod
+	def comments_column(columntext):
+		return Column(text=columntext)
 
 if __name__ == '__main__':
 	assert intchar(charint('A')) == 'A'
