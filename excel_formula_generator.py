@@ -87,7 +87,7 @@ class FormulaGenerator:
 		text =  text.strip(" & ")
 
 		if commentscolumn:
-			text += " & {} & CHAR(10)".format(commentscolumn.relative_reference(self.markrow))
+			text += " & \"--\" & {} & CHAR(10) & \"--------------\" & CHAR(10)".format(commentscolumn.relative_reference(self.markrow))
 
 		return text
 
@@ -117,4 +117,4 @@ if __name__ == '__main__':
 	fg = FormulaGenerator()
 	columns = Columns('D', 'H', ['G', 'H']).get()
 	assert fg.generate_total(columns) == "$D$1*D3 +$E$1*E3 +$F$1*F3", fg.generate_total(columns)
-	assert fg.generate_summary(columns, commentscolumn=Column(text='AB')) =='$D$2 & CHAR(10) & $E$2 & ": " & $E$1*E3 & "/" & $E$1 & CHAR(10) & $F$2 & ": " & $F$1*F3 & "/" & $F$1 & CHAR(10) & AB3 & CHAR(10)', fg.generate_summary(columns, commentscolumn=Column(text='AB'))
+	assert fg.generate_summary(columns, commentscolumn=Column(text='AB')) =='$D$2 & CHAR(10) & $E$2 & ": " & $E$1*E3 & "/" & $E$1 & CHAR(10) & $F$2 & ": " & $F$1*F3 & "/" & $F$1 & CHAR(10) & \"--\" & AB3 & CHAR(10) & \"--------------\" & CHAR(10)', fg.generate_summary(columns, commentscolumn=Column(text='AB'))
