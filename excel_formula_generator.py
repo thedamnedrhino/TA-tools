@@ -89,7 +89,7 @@ class FormulaGenerator:
 			text += "{} & \": \" & {}*{} & \"/\" & {} & CHAR(10) & ".format(c.absolute_reference(self.titlerow), c.absolute_reference(self.valuerow), c.relative_reference(self.markrow), c.absolute_reference(self.valuerow))
 		text =  text.strip(" & ")
 		if bonuscolumn:
-			text += " & {} & \":\" & {} & CHAR(10)".format(bonuscolumn.absolute_reference(self.titlerow), bonuscolumn.relative_reference(self.markrow))
+			text += " & {} & \": \" & {} & CHAR(10)".format(bonuscolumn.absolute_reference(self.titlerow), bonuscolumn.relative_reference(self.markrow))
 		if totalcolumn:
 			text += ' & CHAR(10) & {} & ": " & {} & "/" & {} & CHAR(10)'.format(totalcolumn.absolute_reference(self.titlerow), totalcolumn.relative_reference(self.markrow), totalcolumn.absolute_reference(self.valuerow))
 
