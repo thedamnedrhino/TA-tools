@@ -78,16 +78,23 @@ class FormulaGenerator:
 
 		return text.strip("+").strip()
 
-	def generate_summary(self, columns, questionnumber=True, commentscolumn=None):
+	def generate_summary(self, columns, questionnumber=True, totalcolumn=None, commentscolumn=None, bonuscolumn=None):
+		if totalcolumn is True:
+			totalcolumn = columns[len(columns) - 1]
+			columns = columns[:len(columns)-1]
 		c = columns[0]
-		text = "{} & CHAR(10) & ".format(c.absolute_reference(self.titlerow)) if questionnumber else ""
+		text = "\"Q\" & {} & \".\" & CHAR(10) & ".format(c.absolute_reference(self.titlerow)) if questionnumber else ""
 		columns = columns[1:] if questionnumber else columns
 		for c in columns:
 			text += "{} & \": \" & {}*{} & \"/\" & {} & CHAR(10) & ".format(c.absolute_reference(self.titlerow), c.absolute_reference(self.valuerow), c.relative_reference(self.markrow), c.absolute_reference(self.valuerow))
 		text =  text.strip(" & ")
+		if bonuscolumn:
+			text += " & {} & \":\" & {} & CHAR(10)".format(bonuscolumn.absolute_reference(self.titlerow), bonuscolumn.relative_reference(self.markrow))
+		if totalcolumn:
+			text += ' & CHAR(10) & {} & ": " & {} & "/" & {} & CHAR(10)'.format(totalcolumn.absolute_reference(self.titlerow), totalcolumn.relative_reference(self.markrow), totalcolumn.absolute_reference(self.valuerow))
 
 		if commentscolumn:
-			text += " & \"--\" & {} & CHAR(10) & \"--------------\" & CHAR(10)".format(commentscolumn.relative_reference(self.markrow))
+			text += " & \"--\" & CHAR(10) & {} & CHAR(10) & \"--------------\" & CHAR(10)".format(commentscolumn.relative_reference(self.markrow))
 
 		return text
 
@@ -109,7 +116,13 @@ class Columns:
 		return l
 
 	@staticmethod
+	def column(columntext):
+		return Column(text=columntext)
+	@staticmethod
 	def comments_column(columntext):
+		return Column(text=columntext)
+	@staticmethod
+	def bonus_column(columntext):
 		return Column(text=columntext)
 
 if __name__ == '__main__':
@@ -117,4 +130,4 @@ if __name__ == '__main__':
 	fg = FormulaGenerator()
 	columns = Columns('D', 'H', ['G', 'H']).get()
 	assert fg.generate_total(columns) == "$D$1*D3 +$E$1*E3 +$F$1*F3", fg.generate_total(columns)
-	assert fg.generate_summary(columns, commentscolumn=Column(text='AB')) =='$D$2 & CHAR(10) & $E$2 & ": " & $E$1*E3 & "/" & $E$1 & CHAR(10) & $F$2 & ": " & $F$1*F3 & "/" & $F$1 & CHAR(10) & \"--\" & AB3 & CHAR(10) & \"--------------\" & CHAR(10)', fg.generate_summary(columns, commentscolumn=Column(text='AB'))
+	assert fg.generate_summary(columns, commentscolumn=Column(text='AB')) =='$D$2 & CHAR(10) & $E$2 & ": " & $E$1*E3 & "/" & $E$1 & CHAR(10) & $F$2 & ": " & $F$1*F3 & "/" & $F$1 & CHAR(10) & \"--\" & CHAR(10) & AB3 & CHAR(10) & \"--------------\" & CHAR(10)', fg.generate_summary(columns, commentscolumn=Column(text='AB'))
